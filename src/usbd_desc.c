@@ -50,8 +50,8 @@
 #define USBD_PID                      0x1234 // random value
 #define USBD_LANGID_STRING            0x409
 #define USBD_MANUFACTURER_STRING      "STM32 Black Pill"
-#define USBD_PRODUCT_HS_STRING        "PCM5102A DAC"
-#define USBD_PRODUCT_FS_STRING        "PCM5102A DAC"
+#define USBD_PRODUCT_HS_STRING        "teh DSP"
+#define USBD_PRODUCT_FS_STRING        "teh DSP"
 #define USBD_CONFIGURATION_HS_STRING  "AUDIO Config"
 #define USBD_INTERFACE_HS_STRING      "AUDIO Interface"
 #define USBD_CONFIGURATION_FS_STRING  "AUDIO Config"

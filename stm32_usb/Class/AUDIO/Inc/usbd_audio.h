@@ -52,7 +52,9 @@
 
  // 3dB step resolution
  #ifndef USBD_AUDIO_VOL_STEP
- #define USBD_AUDIO_VOL_STEP                           0x0300U
+ //#define USBD_AUDIO_VOL_STEP                           0x0300U
+ // we're not adjusting volume here, so any step is ok
+ #define USBD_AUDIO_VOL_STEP                           0x0080U
  #endif
 
  // default mute state is on (muted)

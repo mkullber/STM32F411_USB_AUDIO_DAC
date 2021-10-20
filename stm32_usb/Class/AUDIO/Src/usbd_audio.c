@@ -35,6 +35,11 @@
 #include "usbd_ctlreq.h"
 #include "bsp_audio.h"
 
+#include "printmsg.h"
+
+#define TEXT_PLAY "PLAY = %u\n"
+#define TEXT_MUTE "MUTE = %u\n"
+#define TEXT_VOL "VOL = %i\n"
 
 #define AUDIO_SAMPLE_FREQ(frq) (uint8_t)(frq), (uint8_t)((frq >> 8)), (uint8_t)((frq >> 16))
 
@@ -341,6 +346,9 @@ static uint8_t USBD_AUDIO_Init(USBD_HandleTypeDef* pdev, uint8_t cfgidx)
     haudio->volume = USBD_AUDIO_VOL_DEFAULT;
     haudio->vol_3dB_shift = USBD_AUDIO_Get_Vol3dB_Shift(USBD_AUDIO_VOL_DEFAULT);
     haudio->mute = USBD_AUDIO_MUTE_DEFAULT;
+
+    printMsg(TEXT_VOL, haudio->volume);  // volume: -24576 .. 0
+    printMsg(TEXT_MUTE, haudio->mute);
 
     // Initialize the Audio output Hardware layer
     if (((USBD_AUDIO_ItfTypeDef*)pdev->pUserData)->Init(haudio->freq, haudio->volume, haudio->mute) != 0) {
@@ -769,7 +777,7 @@ static uint8_t USBD_AUDIO_DataOut(USBD_HandleTypeDef* pdev,  uint8_t epnum){
 			sample.b[1] = tmpbuf[tmpbuf_ptr+1];
 			sample.b[2] = tmpbuf[tmpbuf_ptr+2]; // msb
 			sample.b[3] = sample.b[2] & 0x80 ? 0xFF : 0x00; // sign extend to 32bits
-			sample.s = USBD_AUDIO_Volume_Ctrl(sample.s,haudio->vol_3dB_shift);
+			// sample.s = USBD_AUDIO_Volume_Ctrl(sample.s,haudio->vol_3dB_shift);
 
 			haudio->buffer[haudio->wr_ptr++] = (((uint16_t)sample.b[2]) << 8) | (uint16_t)sample.b[1];
 			haudio->buffer[haudio->wr_ptr++] = ((uint16_t)sample.b[0]) << 8;
@@ -779,7 +787,7 @@ static uint8_t USBD_AUDIO_DataOut(USBD_HandleTypeDef* pdev,  uint8_t epnum){
 			sample.b[2] = tmpbuf[tmpbuf_ptr+5]; // msb
 			sample.b[3] = sample.b[2] & 0x80 ? 0xFF : 0x00; // sign extend to 32bits
 
-			sample.s = USBD_AUDIO_Volume_Ctrl(sample.s,haudio->vol_3dB_shift);
+			// sample.s = USBD_AUDIO_Volume_Ctrl(sample.s,haudio->vol_3dB_shift);
 
 			haudio->buffer[haudio->wr_ptr++] = (((uint16_t)sample.b[2]) << 8) | (uint16_t)sample.b[1];
 			haudio->buffer[haudio->wr_ptr++] = ((uint16_t)sample.b[0]) << 8;
@@ -798,6 +806,7 @@ static uint8_t USBD_AUDIO_DataOut(USBD_HandleTypeDef* pdev,  uint8_t epnum){
 			if (haudio->wr_ptr >= AUDIO_TOTAL_BUF_SIZE / 2U) {
 				haudio->offset = AUDIO_OFFSET_NONE;
 				is_playing = 1U;
+        printMsg(TEXT_PLAY, is_playing);
 
 				if (haudio->rd_enable == 0U) {
 					haudio->rd_enable = 1U;
@@ -960,6 +969,7 @@ static uint8_t USBD_AUDIO_EP0_RxReady(USBD_HandleTypeDef* pdev)
         // Mute Control
         case AUDIO_CONTROL_REQ_FU_MUTE: {
         	haudio->mute = haudio->control.data[0];
+          printMsg(TEXT_MUTE, haudio->mute);
           ((USBD_AUDIO_ItfTypeDef*)pdev->pUserData)->MuteCtl(haudio->control.data[0]);
         };
             break;
@@ -967,6 +977,7 @@ static uint8_t USBD_AUDIO_EP0_RxReady(USBD_HandleTypeDef* pdev)
         case AUDIO_CONTROL_REQ_FU_VOL: {
           int16_t volume = *(int16_t*)&haudio->control.data[0];
           haudio->volume = volume;
+          printMsg(TEXT_VOL, haudio->volume);  // volume: -24576 .. 0
           haudio->vol_3dB_shift = USBD_AUDIO_Get_Vol3dB_Shift(volume);
           ((USBD_AUDIO_ItfTypeDef*)pdev->pUserData)->VolumeCtl(volume);
         };
@@ -1021,6 +1032,7 @@ static void AUDIO_OUT_StopAndReset(USBD_HandleTypeDef* pdev)
   all_ready = 0U;
   tx_flag = 1U;
   is_playing = 0U;
+  printMsg(TEXT_PLAY, is_playing);
   audio_buf_writable_samples_last = AUDIO_TOTAL_BUF_SIZE /(2*6);
 #ifdef DEBUG_FEEDBACK_ENDPOINT
   DbgMinWritableSamples = 99999;

@@ -3,6 +3,7 @@
 #include "usbd_audio.h"
 #include <stdio.h>
 #include <stdarg.h>
+#include "printmsg.h"
 
 USBD_HandleTypeDef USBD_Device;
 AUDIO_STATUS_TypeDef audio_status;
@@ -185,15 +186,6 @@ void SystemClock_Config(void)
 #endif
 
 
-
-void printMsg(char* format, ...) {
-	char sz[100];
-	va_list args;
-	va_start(args, format);
-	vsprintf(sz, format, args);
-	HAL_UART_Transmit(&huart2, (uint8_t *)sz, strlen(sz), HAL_MAX_DELAY);
-	va_end(args);
-	}
 
 void Error_Handler(void){
 	uint32_t counter;
