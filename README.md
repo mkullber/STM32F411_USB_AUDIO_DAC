@@ -1,3 +1,7 @@
+# My (mkullber) changes
+
+Don't change volume here, instead print volume/mute changes to usart2. Volume changes are handled on ADAU1701 where we stream audio to via I2S.
+
 # STM32F4xx "Black Pill" USB to I2S DAC Audio Bridge
 
 ## Features
