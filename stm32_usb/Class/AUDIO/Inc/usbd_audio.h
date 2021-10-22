@@ -28,7 +28,7 @@
 
 
 #ifndef USBD_AUDIO_FREQ_DEFAULT
-#define USBD_AUDIO_FREQ_DEFAULT                       96000U
+#define USBD_AUDIO_FREQ_DEFAULT                       48000U
 #endif
 
 #ifndef USBD_AUDIO_FREQ_MAX

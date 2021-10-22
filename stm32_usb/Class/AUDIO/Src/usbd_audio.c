@@ -40,6 +40,7 @@
 #define TEXT_PLAY "PLAY = %u\n"
 #define TEXT_MUTE "MUTE = %u\n"
 #define TEXT_VOL "VOL = %i\n"
+#define TEXT_FREQ "FREQ = %i\n"
 
 #define AUDIO_SAMPLE_FREQ(frq) (uint8_t)(frq), (uint8_t)((frq >> 8)), (uint8_t)((frq >> 16))
 
@@ -347,8 +348,9 @@ static uint8_t USBD_AUDIO_Init(USBD_HandleTypeDef* pdev, uint8_t cfgidx)
     haudio->vol_3dB_shift = USBD_AUDIO_Get_Vol3dB_Shift(USBD_AUDIO_VOL_DEFAULT);
     haudio->mute = USBD_AUDIO_MUTE_DEFAULT;
 
-    printMsg(TEXT_VOL, haudio->volume);  // volume: -24576 .. 0
+    printMsg(TEXT_VOL, haudio->volume);
     printMsg(TEXT_MUTE, haudio->mute);
+    printMsg(TEXT_FREQ, haudio->freq);
 
     // Initialize the Audio output Hardware layer
     if (((USBD_AUDIO_ItfTypeDef*)pdev->pUserData)->Init(haudio->freq, haudio->volume, haudio->mute) != 0) {
@@ -977,7 +979,7 @@ static uint8_t USBD_AUDIO_EP0_RxReady(USBD_HandleTypeDef* pdev)
         case AUDIO_CONTROL_REQ_FU_VOL: {
           int16_t volume = *(int16_t*)&haudio->control.data[0];
           haudio->volume = volume;
-          printMsg(TEXT_VOL, haudio->volume);  // volume: -24576 .. 0
+          printMsg(TEXT_VOL, haudio->volume);
           haudio->vol_3dB_shift = USBD_AUDIO_Get_Vol3dB_Shift(volume);
           ((USBD_AUDIO_ItfTypeDef*)pdev->pUserData)->VolumeCtl(volume);
         };
@@ -991,6 +993,7 @@ static uint8_t USBD_AUDIO_EP0_RxReady(USBD_HandleTypeDef* pdev)
 
         if (haudio->freq != new_freq) {
           haudio->freq = new_freq;
+          printMsg(TEXT_FREQ, haudio->freq);
           AUDIO_OUT_Restart(pdev);
         }
       }
