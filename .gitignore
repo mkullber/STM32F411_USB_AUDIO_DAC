@@ -2,3 +2,5 @@ build/
 doxygen/
 Doxyfile
 
+.vscode/
+.DS_Store

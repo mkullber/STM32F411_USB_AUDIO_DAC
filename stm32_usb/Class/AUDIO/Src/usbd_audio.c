@@ -50,8 +50,8 @@
 #define AUDIO_PACKET_SZE_24B(frq) (uint8_t)(((frq / 1000U + 1) * 2U * 3U) & 0xFFU), \
                                   (uint8_t)((((frq / 1000U + 1) * 2U * 3U) >> 8) & 0xFFU)
 
-
-#define AUDIO_FB_DEFAULT 0x1800ED70 // I2S_Clk_Config24[2].nominal_fdbk (96kHz, 24bit, USE_MCLK_OUT false)
+//#define AUDIO_FB_DEFAULT 0x1800ED70 // I2S_Clk_Config24[2].nominal_fdbk (96kHz, 24bit, USE_MCLK_OUT false)
+#define AUDIO_FB_DEFAULT 0x0BFF6DB2 // I2S_Clk_Config24[2].nominal_fdbk (48kHz, 24bit, USE_MCLK_OUT true)
 
 // DbgFeedbackHistory is limited to +/- 1kHz
 #define  AUDIO_FB_DELTA_MAX (uint32_t)(1 << 22)
@@ -223,6 +223,7 @@ __ALIGN_BEGIN static uint8_t USBD_AUDIO_CfgDesc[USB_AUDIO_CONFIG_DESC_SIZ] __ALI
     AUDIO_SAMPLE_FREQ(44100),        /* Audio sampling frequency coded on 3 bytes */
     AUDIO_SAMPLE_FREQ(48000),        /* Audio sampling frequency coded on 3 bytes */
     AUDIO_SAMPLE_FREQ(96000),        /* Audio sampling frequency coded on 3 bytes */
+    // TODO: remove 96000
     // 17 byte
 
     // Endpoint 1 - Standard Descriptor

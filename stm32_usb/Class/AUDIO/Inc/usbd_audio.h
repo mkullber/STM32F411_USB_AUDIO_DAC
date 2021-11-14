@@ -32,7 +32,7 @@
 #endif
 
 #ifndef USBD_AUDIO_FREQ_MAX
-#define USBD_AUDIO_FREQ_MAX                           96000U
+#define USBD_AUDIO_FREQ_MAX                           48000U
 #endif
 
 // See USB Device Class Definition for Audio Devices v1.0 p.77
