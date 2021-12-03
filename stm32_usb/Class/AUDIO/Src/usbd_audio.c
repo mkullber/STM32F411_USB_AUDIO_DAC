@@ -36,6 +36,8 @@
 #include "bsp_audio.h"
 
 #include "printmsg.h"
+#include "stdbool.h"
+bool buffer_full_printed = false;
 
 #define TEXT_PLAY "PLAY = %u\n"
 #define TEXT_MUTE "MUTE = %u\n"
@@ -106,7 +108,7 @@ __ALIGN_BEGIN static uint8_t USBD_AUDIO_CfgDesc[USB_AUDIO_CONFIG_DESC_SIZ] __ALI
     0x01, /* bConfigurationValue */
     0x00, /* iConfiguration */
     0x80, /* bmAttributes  BUS Powered (0xC0 = self-powered) */
-    0x32, /* bMaxPower = 50*2mA = 100 mA*/
+    0xFA, /* bMaxPower = 250*2mA = 500 mA*/
     // 09 byte
 
     // USB Speaker Standard interface descriptor
@@ -212,18 +214,17 @@ __ALIGN_BEGIN static uint8_t USBD_AUDIO_CfgDesc[USB_AUDIO_CONFIG_DESC_SIZ] __ALI
     // 07 byte
 
     // USB Speaker Audio Type I Format Interface Descriptor
-    17,                            /* bLength */
+    14,                            /* bLength */
     AUDIO_INTERFACE_DESCRIPTOR_TYPE, /* bDescriptorType */
     AUDIO_STREAMING_FORMAT_TYPE,     /* bDescriptorSubtype */
     AUDIO_FORMAT_TYPE_I,             /* bFormatType */
     2,                            /* bNrChannels */
     3,                            /* bSubFrameSize :  3 Bytes per frame (24bits) */
     24,                            /* bBitResolution (24-bits per sample) */
-    3,                            /* bSamFreqType 3 frequencies supported */
+    2,                            /* bSamFreqType 3 frequencies supported */
     AUDIO_SAMPLE_FREQ(44100),        /* Audio sampling frequency coded on 3 bytes */
     AUDIO_SAMPLE_FREQ(48000),        /* Audio sampling frequency coded on 3 bytes */
-    AUDIO_SAMPLE_FREQ(96000),        /* Audio sampling frequency coded on 3 bytes */
-    // TODO: remove 96000
+    // AUDIO_SAMPLE_FREQ(96000),        /* Audio sampling frequency coded on 3 bytes */
     // 17 byte
 
     // Endpoint 1 - Standard Descriptor
@@ -585,9 +586,14 @@ static uint8_t USBD_AUDIO_SOF(USBD_HandleTypeDef* pdev)
     // Monitor remaining writable buffer samples with LED
     if (audio_buf_writable_samples < AUDIO_BUF_SAFEZONE_SAMPLES) {
     	BSP_OnboardLED_On();
+      if(!buffer_full_printed) {
+        printMsg("audio buffer full\n");
+        buffer_full_printed = true;
+      }
     	}
     else {
     	BSP_OnboardLED_Off();
+      buffer_full_printed = false;
     	}
 
     sof_count += 1;

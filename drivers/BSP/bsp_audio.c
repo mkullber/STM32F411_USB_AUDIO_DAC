@@ -417,11 +417,11 @@ __weak void BSP_AUDIO_OUT_ClockConfig(I2S_HandleTypeDef *hi2s, uint32_t AudioFre
 #endif
     I2S_Config_I2SPR(I2S_PR);
     } 
-  else { // Default PLL I2S configuration for 96000 Hz 24bit
-    N = I2S_Clk_Config24[2].N;
-    R = I2S_Clk_Config24[2].R;
-    I2SDIV = I2S_Clk_Config24[2].I2SDIV;
-    ODD = I2S_Clk_Config24[2].ODD;
+  else { // Default PLL I2S configuration for 48000 Hz 24bit
+    N = I2S_Clk_Config24[1].N;
+    R = I2S_Clk_Config24[1].R;
+    I2SDIV = I2S_Clk_Config24[1].I2SDIV;
+    ODD = I2S_Clk_Config24[1].ODD;
 
     RCC_ExCLKInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2S;
 #ifdef STM32F411xE
