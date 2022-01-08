@@ -353,11 +353,16 @@ static uint8_t USBD_AUDIO_Init(USBD_HandleTypeDef* pdev, uint8_t cfgidx)
     printMsg(TEXT_VOL, haudio->volume);
     printMsg(TEXT_MUTE, haudio->mute);
     printMsg(TEXT_FREQ, haudio->freq);
+    printMsg(TEXT_PLAY, is_playing);
 
     // Initialize the Audio output Hardware layer
     if (((USBD_AUDIO_ItfTypeDef*)pdev->pUserData)->Init(haudio->freq, haudio->volume, haudio->mute) != 0) {
       return USBD_FAIL;
     }
+    // enable MCLK_OUT
+    ((USBD_AUDIO_ItfTypeDef*)pdev->pUserData)->AudioCmd(&haudio->buffer[0], 6, AUDIO_CMD_START);
+    is_playing = 1U;
+    AUDIO_OUT_StopAndReset(pdev);
   }
   return USBD_OK;
 }
@@ -1036,6 +1041,8 @@ static uint8_t USBD_AUDIO_EP0_TxReady(USBD_HandleTypeDef* pdev)
  */
 static void AUDIO_OUT_StopAndReset(USBD_HandleTypeDef* pdev)
 {
+  bool do_deinit = is_playing == 0;
+
   USBD_AUDIO_HandleTypeDef* haudio;
   haudio = (USBD_AUDIO_HandleTypeDef*)pdev->pClassData;
 
@@ -1058,7 +1065,10 @@ static void AUDIO_OUT_StopAndReset(USBD_HandleTypeDef* pdev)
   USBD_LL_FlushEP(pdev, AUDIO_IN_EP);
   USBD_LL_FlushEP(pdev, AUDIO_OUT_EP);
 
-  ((USBD_AUDIO_ItfTypeDef*)pdev->pUserData)->DeInit(0);
+  if(do_deinit)
+  {
+    ((USBD_AUDIO_ItfTypeDef*)pdev->pUserData)->DeInit(0);  // disables MCLK_OUT
+  }
 }
 
 
